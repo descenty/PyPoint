@@ -29,7 +29,6 @@ class Seller(models.Model):
 
 
 class Good(models.Model):
-    vendor_code = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=200)
     description = models.TextField(max_length=500)
     image = models.ImageField(upload_to='images', null=True)

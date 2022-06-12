@@ -79,8 +79,8 @@ WSGI_APPLICATION = 'PyPoint.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'pypoint',
-        'USER': 'deverty',
+        'NAME': 'pypointdb',
+        'USER': 'postgres',
         'PASSWORD': 'qweasdzxc',
         'HOST': 'localhost',
         'PORT': '',
