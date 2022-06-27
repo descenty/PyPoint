@@ -1,13 +1,45 @@
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 
 
-class Customer(models.Model):
-    fio = models.CharField(max_length=100)
-    phone = models.CharField(max_length=11)
-    order_count = models.IntegerField()
-    purchase_percent = models.FloatField()
-    card_balance = models.IntegerField()
+class UserManager(BaseUserManager):
+    def create_user(self, phone, password=None):
+        if not phone:
+            raise ValueError('Users must have a phone')
+
+        user = self.model(
+            phone=phone
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, phone, password):
+        user = self.create_user(
+            phone,
+            password=password,
+        )
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+
+class Customer(AbstractBaseUser, PermissionsMixin):
+    phone = models.CharField(max_length=11, unique=True)
+    email = models.EmailField(max_length=100, unique=True)
+    fio = models.CharField(max_length=50, null=True)
+    order_count = models.IntegerField(null=True)
+    purchase_percent = models.FloatField(null=True)
+    card_balance = models.IntegerField(null=True)
     saved_pick_points = models.ManyToManyField('PickPoint')
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    USERNAME_FIELD = 'phone'
+    REQUIRED_FIELDS = []
+    objects = UserManager()
 
 
 class PickPoint(models.Model):

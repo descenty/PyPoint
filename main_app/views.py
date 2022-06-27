@@ -1,19 +1,15 @@
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
+from django.views import View
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from .models import *
+from .serializers import CustomerSerializer
 
 
-def index(request):
-    return render(request, 'index.html')
+class CustomerViewSet(viewsets.ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
+    permission_classes = (IsAuthenticated, )
 
-
-def seller(request):
-    return render(request, 'seller.html')
-
-
-def register(request):
-    return render(request, 'seller.html')
-
-
-def login(request):
-    return render(request, 'seller.html')
 
