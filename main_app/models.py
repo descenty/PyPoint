@@ -1,53 +1,29 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
-
-
-class UserManager(BaseUserManager):
-    def create_user(self, phone, password=None):
-        if not phone:
-            raise ValueError('Users must have a phone')
-
-        user = self.model(
-            phone=phone
-        )
-
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, phone, password):
-        user = self.create_user(
-            phone,
-            password=password,
-        )
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
+from .managers import CustomerManager
 
 
 class Customer(AbstractBaseUser, PermissionsMixin):
-    phone = models.CharField(max_length=11, unique=True)
+    phone = models.CharField(max_length=11, primary_key=True)
     email = models.EmailField(max_length=100, unique=True)
     fio = models.CharField(max_length=50, null=True)
     order_count = models.IntegerField(null=True)
     purchase_percent = models.FloatField(null=True)
-    card_balance = models.IntegerField(null=True)
+    card_balance = models.PositiveIntegerField(null=True)
     saved_pick_points = models.ManyToManyField('PickPoint')
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
-    objects = UserManager()
+    objects = CustomerManager()
 
 
 class PickPoint(models.Model):
     address = models.CharField(max_length=50)
-    rating = models.FloatField()
+    rating = models.FloatField(default=4.95)
     owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    cells_count = models.IntegerField()
-    max_goods = models.IntegerField()
+    cells_count = models.IntegerField(default=0)
 
 
 class PickPointCustomer(models.Model):
