@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 from main_app.views import PickPointViewSet
 from rest_framework import permissions, routers
+from rest_framework.authtoken import views
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
@@ -39,6 +40,7 @@ router.register(r'pick-points', PickPointViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('rest_framework.urls')),
+    path('api/token-auth/', views.obtain_auth_token),
     path('api/', include(router.urls)),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

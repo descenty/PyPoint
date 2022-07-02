@@ -14,7 +14,7 @@ from .serializers import *
 
 class PickPointViewSet(viewsets.ModelViewSet):
     queryset = PickPoint.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
         match self.action:
