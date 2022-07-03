@@ -6,7 +6,7 @@ from .managers import CustomerManager
 
 class Customer(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=11, primary_key=True)
-    email = models.EmailField(max_length=100, unique=True)
+    email = models.EmailField(max_length=100)
     fio = models.CharField(max_length=50, null=True)
     order_count = models.IntegerField(null=True)
     purchase_percent = models.FloatField(null=True)

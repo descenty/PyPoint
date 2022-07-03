@@ -13,9 +13,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from email.mime import base
 from django.contrib import admin
 from django.urls import path, re_path, include
-from main_app.views import PickPointViewSet
+from main_app.views import PickPointViewSet, CreateCustomerView
 from rest_framework import permissions, routers
 from rest_framework.authtoken import views
 from drf_yasg import openapi
@@ -35,10 +36,11 @@ schema_view = get_schema_view(
 )
 
 router = routers.SimpleRouter()
-router.register(r'pick-points', PickPointViewSet)
+router.register(r'pick-points', PickPointViewSet, basename='pickpoint')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/register/', CreateCustomerView.as_view()),
     path('accounts/', include('rest_framework.urls')),
     path('api/token-auth/', views.obtain_auth_token),
     path('api/', include(router.urls)),

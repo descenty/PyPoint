@@ -5,7 +5,15 @@ from .models import Customer, PickPoint
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = '__all__'
+        fields = ('phone', 'password')
+
+    def create(self, validated_data):
+        customer = Customer.objects.create_user(
+            phone=validated_data['phone'],
+            password=validated_data['password'],
+        )
+        return customer
+    
 
 
 class PickPointSerializer(serializers.ModelSerializer):
