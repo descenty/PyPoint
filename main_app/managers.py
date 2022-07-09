@@ -17,7 +17,7 @@ class CustomerManager(BaseUserManager):
     def create_superuser(self, phone, password):
         user = self.create_user(
             phone,
-            password=password,
+            password
         )
         user.is_staff = True
         user.is_superuser = True

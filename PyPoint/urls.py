@@ -36,7 +36,7 @@ schema_view = get_schema_view(
 )
 
 router = routers.SimpleRouter()
-router.register(r'pick-points', PickPointViewSet, basename='pickpoint')
+router.register(r'pick-points', PickPointViewSet, basename='pick-points')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

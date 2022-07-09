@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Customer, PickPoint
+from .models import Customer, PickPoint, Good, Seller
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -15,14 +15,37 @@ class CustomerSerializer(serializers.ModelSerializer):
         return customer
     
 
-
-class PickPointSerializer(serializers.ModelSerializer):
+class PickPointCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PickPoint
         fields = ('address', 'owner')
 
 
+class PickPointListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PickPoint
+        fields = ('address', 'rating')
+
+
 class PickPointDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = PickPoint
+        fields = '__all__'
+
+
+class SellerCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = ('name', 'description')
+
+
+class SellerDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = '__all__'
+
+
+class GoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Good
         fields = '__all__'

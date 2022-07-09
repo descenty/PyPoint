@@ -5,15 +5,15 @@ from .managers import CustomerManager
 
 
 class Customer(AbstractBaseUser, PermissionsMixin):
-    phone = models.CharField(max_length=11, primary_key=True)
-    email = models.EmailField(max_length=100)
-    fio = models.CharField(max_length=50, null=True)
-    order_count = models.IntegerField(null=True)
-    purchase_percent = models.FloatField(null=True)
-    card_balance = models.PositiveIntegerField(null=True)
-    saved_pick_points = models.ManyToManyField('PickPoint')
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
+    phone = models.CharField(max_length=11, unique=True, verbose_name='Телефон')
+    email = models.EmailField(max_length=100, blank=True, unique=True, null=True, verbose_name='Электронная почта')
+    fio = models.CharField(max_length=50, blank=True, null=True, verbose_name='ФИО')
+    order_count = models.PositiveSmallIntegerField(default=0, verbose_name='Количество заказов')
+    purchase_percent = models.FloatField(default=1, verbose_name='Процент выкупа')
+    card_balance = models.PositiveIntegerField(default=0, verbose_name='Баланс')
+    saved_pick_points = models.ManyToManyField('PickPoint', blank=True, verbose_name='Сохраненные пункты выдачи')
+    is_staff = models.BooleanField(default=False, verbose_name='Персонал')
+    is_superuser = models.BooleanField(default=False, verbose_name='Суперпользователь')
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
     objects = CustomerManager()
@@ -23,25 +23,38 @@ class PickPoint(models.Model):
     address = models.CharField(max_length=50)
     rating = models.FloatField(default=4.95)
     owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    cells_count = models.IntegerField(default=0)
+    cells_count = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return self.address
 
 
 class PickPointCustomer(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     pick_point = models.ForeignKey(PickPoint, on_delete=models.CASCADE)
-    cell = models.IntegerField(null=True)
+    cell = models.PositiveSmallIntegerField(null=True)
 
 
 class Seller(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, verbose_name='Название')
+    description = models.TextField(max_length=500, blank=True, null=True, verbose_name='Описание')
+    image = models.ImageField(upload_to='sellers', null=True, verbose_name='Изображение')
+    rating = models.FloatField(default=0, verbose_name='Рейтинг')
+
+    def __str__(self):
+        return self.name
 
 
 class Good(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.TextField(max_length=500)
-    image = models.ImageField(upload_to='images', null=True)
-    price = models.IntegerField()
-    seller = models.ForeignKey(Seller, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=200, verbose_name='Название')
+    description = models.TextField(max_length=500, verbose_name='Описание')
+    image = models.ImageField(upload_to='goods', null=True, verbose_name='Изображение')
+    price = models.PositiveIntegerField(verbose_name='Цена')
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE, null=True, verbose_name='Продавец')
+    rating = models.FloatField(default=0, verbose_name='Рейтинг')
+
+    def __str__(self):
+        return self.name
 
 
 class OrderedGood(models.Model):
