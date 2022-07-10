@@ -1,6 +1,13 @@
 # accounts/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, UsernameField
 
 from .models import Customer
 
+
+class CustomerCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = get_user_model()
+        fields = ("phone",)
+        field_classes = {"phone": UsernameField}

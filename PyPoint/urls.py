@@ -13,10 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from email.mime import base
 from django.contrib import admin
 from django.urls import path, re_path, include
+from django.views.generic import TemplateView
+
 from main_app.views import PickPointViewSet, CreateCustomerView
+from main_app.web_views import RegisterCustomerWebView
 from rest_framework import permissions, routers
 from rest_framework.authtoken import views
 from drf_yasg import openapi
@@ -39,9 +41,12 @@ router = routers.SimpleRouter()
 router.register(r'pick-points', PickPointViewSet, basename='pick-points')
 
 urlpatterns = [
+    path('', TemplateView.as_view(template_name='seller.html'), name='home'),
     path('admin/', admin.site.urls),
-    path('accounts/register/', CreateCustomerView.as_view()),
-    path('accounts/', include('rest_framework.urls')),
+   # path('accounts/register/', CreateCustomerView.as_view()),
+    path('accounts/register/', RegisterCustomerWebView.as_view(), name='register'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    #path('accounts/', include('rest_framework.urls')),
     path('api/token-auth/', views.obtain_auth_token),
     path('api/', include(router.urls)),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
