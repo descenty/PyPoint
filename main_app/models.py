@@ -18,12 +18,20 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
     objects = CustomerManager()
 
+    class Meta:
+        verbose_name = 'Клиент'
+        verbose_name_plural = 'Клиенты'
+
 
 class PickPoint(models.Model):
     address = models.CharField(max_length=50)
     rating = models.FloatField(default=4.95)
     owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
     cells_count = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Пункт выдачи'
+        verbose_name_plural = 'Пункты выдачи'
 
     def __str__(self):
         return self.address
@@ -41,6 +49,10 @@ class Seller(models.Model):
     image = models.ImageField(upload_to='sellers', null=True, verbose_name='Изображение')
     rating = models.FloatField(default=0, verbose_name='Рейтинг')
 
+    class Meta:
+        verbose_name = 'Продавец'
+        verbose_name_plural = 'Продавцы'
+
     def __str__(self):
         return self.name
 
@@ -52,6 +64,10 @@ class Good(models.Model):
     price = models.PositiveIntegerField(verbose_name='Цена')
     seller = models.ForeignKey(Seller, on_delete=models.CASCADE, null=True, verbose_name='Продавец')
     rating = models.FloatField(default=0, verbose_name='Рейтинг')
+
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
     def __str__(self):
         return self.name
