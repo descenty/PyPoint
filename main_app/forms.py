@@ -9,5 +9,5 @@ from .models import Customer
 class CustomerCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = get_user_model()
-        fields = ("phone",)
+        fields = ("phone", 'fio',)
         field_classes = {"phone": UsernameField}
