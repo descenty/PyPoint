@@ -26,7 +26,29 @@
         </ul>
     {% endif %}
 </nav>
-{% block content %}
-{% endblock %}
+<div class="row">
+    <nav class="col-lg-2 d-md-block bg-light sidebar">
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle"
+               id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+                <strong>{{ user }}</strong>
+            </a>
+        </div>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            {% for element in menu %}
+                <li class="nav-item">
+                    <a href="{% url element.url_name %}" class="nav-link link-dark" aria-current="page">
+                        <i class="{{ element.icon_class }}"></i>
+                        &nbsp;{{ element.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    {% block content %}
+    {% endblock %}
+</div>
 </body>
 </html>

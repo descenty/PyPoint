@@ -21,3 +21,17 @@ class SellerAdmin(admin.ModelAdmin):
 @admin.register(models.Good)
 class GoodAdmin(admin.ModelAdmin):
     list_display = ('name', 'rating', 'price')
+
+
+class CartGoodAdminInline(admin.TabularInline):
+    model = models.CartGood
+
+
+@admin.register(models.Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('count', 'total')
+    inlines = [CartGoodAdminInline, ]
+
+    # def cart_goods(self, cart: models.Cart):
+    #     return cart.cartgood_set.all()
+

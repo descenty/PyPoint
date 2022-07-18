@@ -4,6 +4,12 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from .managers import CustomerManager
 
 
+class Cart(models.Model):
+    count = models.PositiveSmallIntegerField(default=0, verbose_name='Количество товаров')
+    total = models.DecimalField(default=0.00, max_digits=10, decimal_places=2, verbose_name='Сумма')
+    promo_code = models.CharField(max_length=30, null=True, verbose_name='Промокод')
+
+
 class Customer(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=11, unique=True, verbose_name='Телефон')
     email = models.EmailField(max_length=100, blank=True, unique=True, null=True, verbose_name='Электронная почта')
@@ -14,6 +20,7 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     saved_pick_points = models.ManyToManyField('PickPoint', blank=True, verbose_name='Сохраненные пункты выдачи')
     is_staff = models.BooleanField(default=False, verbose_name='Персонал')
     is_superuser = models.BooleanField(default=False, verbose_name='Суперпользователь')
+    cart = models.OneToOneField(Cart, on_delete=models.CASCADE, blank=True, null=True)
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
     objects = CustomerManager()
@@ -71,6 +78,12 @@ class Good(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CartGood(models.Model):
+    good = models.ForeignKey(Good, on_delete=models.CASCADE, verbose_name='Товар')
+    quantity = models.PositiveSmallIntegerField(verbose_name='Количество')
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, verbose_name='Корзина')
 
 
 class OrderedGood(models.Model):
