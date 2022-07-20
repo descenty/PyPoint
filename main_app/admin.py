@@ -6,21 +6,31 @@ from . import models
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ('fio', 'phone')
+    readonly_fields = ('order_count', 'purchase_percent')
 
 
 @admin.register(models.PickPoint)
 class PickPointAdmin(admin.ModelAdmin):
     list_display = ('address', 'rating', 'cells_count')
+    readonly_fields = ('rating', )
+
+
+@admin.register(models.Good)
+class GoodAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'rating')
+    readonly_fields = ('rating', )
+
+
+class GoodAdminInline(admin.TabularInline):
+    model = models.Good
+    readonly_fields = ('rating', )
 
 
 @admin.register(models.Seller)
 class SellerAdmin(admin.ModelAdmin):
     list_display = ('name', 'rating')
-
-
-@admin.register(models.Good)
-class GoodAdmin(admin.ModelAdmin):
-    list_display = ('name', 'rating', 'price')
+    readonly_fields = ('rating', )
+    inlines = (GoodAdminInline, )
 
 
 class CartGoodAdminInline(admin.TabularInline):
@@ -29,9 +39,11 @@ class CartGoodAdminInline(admin.TabularInline):
 
 @admin.register(models.Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('count', 'total')
-    inlines = [CartGoodAdminInline, ]
+    readonly_fields = ('count', 'total', 'total_with_discount')
+    inlines = (CartGoodAdminInline, )
 
-    # def cart_goods(self, cart: models.Cart):
-    #     return cart.cartgood_set.all()
+
+@admin.register(models.PromoCode)
+class PromoCodeAdmin(admin.ModelAdmin):
+    list_display = ('value', 'promo_code_type')
 
