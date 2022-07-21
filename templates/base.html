@@ -45,6 +45,15 @@
                     </a>
                 </li>
             {% endfor %}
+            {% if cart_menu_element %}
+                <li class="nav-item">
+                    <a href="{% url cart_menu_element.url_name %}" class="nav-link link-dark" aria-current="page">
+                        <i class="{{ cart_menu_element.icon_class }}"></i>
+                        &nbsp;{{ cart_menu_element.title }}
+                        <span class="badge bg-primary rounded-pill">{{ cart_goods_count }}</span>
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </nav>
     {% block content %}

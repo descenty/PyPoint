@@ -1,6 +1,8 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from django.utils.timezone import now
+
 from .managers import CustomerManager
 from main_app.promo_codes import promo_codes
 
@@ -10,6 +12,7 @@ class Cart(models.Model):
     total = models.DecimalField(default=0.00, blank=True, max_digits=10, decimal_places=2, verbose_name='Сумма')
     total_with_discount = models.DecimalField(default=0.00, blank=True, max_digits=10, decimal_places=2, verbose_name='Сумма со скидкой')
     promo_code = models.CharField(max_length=30, blank=True, null=True, verbose_name='Промокод')
+    promo_code_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='Название промокода')
 
     class Meta:
         verbose_name = 'Корзина'
@@ -19,14 +22,20 @@ class Cart(models.Model):
         return f'Корзина {str(self.customer)}'
 
     def save(self, *args, **kwargs):
-        cart_goods = self.cartgood_set.all()
+        cart_goods = self.cart_goods.all()
         self.count = sum(x.quantity for x in cart_goods)
         self.total = sum(x.good.price * x.quantity for x in cart_goods)
         self.total_with_discount = self.total
+        activated = False
         if PromoCode.objects.filter(value=self.promo_code).exists():
             promo_code = PromoCode.objects.get(value=self.promo_code)
-            promo_code_object = [x[1] for x in promo_codes.items() if x[0][0] == promo_code.promo_code_type][0]
+            promo_code_items = [x for x in promo_codes.items() if x[0][0] == promo_code.promo_code_type][0]
+            self.promo_code_name = promo_code_items[0][1]
+            promo_code_object = promo_code_items[1]
             activated, msg = promo_code_object.activate(self)
+        elif not activated:
+            self.promo_code = None
+            self.promo_code_name = None
         super(Cart, self).save(*args, **kwargs)
 
 
@@ -40,7 +49,7 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     saved_pick_points = models.ManyToManyField('PickPoint', blank=True, verbose_name='Сохраненные пункты выдачи')
     is_staff = models.BooleanField(default=False, verbose_name='Персонал')
     is_superuser = models.BooleanField(default=False, verbose_name='Суперпользователь')
-    cart = models.OneToOneField(Cart, on_delete=models.CASCADE, blank=True, null=True)
+    cart = models.OneToOneField(Cart, on_delete=models.CASCADE, blank=True, null=True, verbose_name='Корзина')
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
     objects = CustomerManager()
@@ -107,7 +116,8 @@ class Good(models.Model):
 class CartGood(models.Model):
     good = models.ForeignKey(Good, on_delete=models.CASCADE, verbose_name='Товар')
     quantity = models.PositiveSmallIntegerField(verbose_name='Количество')
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, verbose_name='Корзина')
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, verbose_name='Корзина', related_name='cart_goods')
+    created_date = models.DateTimeField(default=now, editable=False)
 
     def save(self, *args, **kwargs):
         super(CartGood, self).save(*args, **kwargs)

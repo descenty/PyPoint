@@ -2,8 +2,10 @@ from dataclasses import dataclass
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from main_app.forms import CustomerCreationForm
 from main_app.models import *
 from main_app.utils import DataMixin
@@ -31,18 +33,19 @@ class SellersView(DataMixin, ListView):
         return context | c_def
 
 
-class CartView(DataMixin, ListView):
+class CartView(DataMixin, DetailView):
     model = Cart
     template_name = 'cart.html'
-    context_object_name = 'cart_goods'
+    context_object_name = 'cart'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        c_def = self.get_user_context(title='Корзина')
+        cart: Cart = self.get_object()
+        c_def = self.get_user_context(title='Корзина', total_difference=cart.total - cart.total_with_discount)
         return context | c_def
 
-    def get_queryset(self):
-        return self.request.user.cart.cartgood_set.all()
+    def get_object(self, **kwargs):
+        return self.request.user.cart
 
 
 class RegisterCustomerView(CreateView):

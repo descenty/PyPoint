@@ -39,7 +39,7 @@ class CartGoodAdminInline(admin.TabularInline):
 
 @admin.register(models.Cart)
 class CartAdmin(admin.ModelAdmin):
-    readonly_fields = ('count', 'total', 'total_with_discount')
+    readonly_fields = ('count', 'total', 'total_with_discount', 'promo_code_name')
     inlines = (CartGoodAdminInline, )
 
 
