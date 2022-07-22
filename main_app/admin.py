@@ -1,11 +1,34 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from nested_admin.nested import NestedStackedInline, NestedTabularInline, NestedModelAdmin
 from . import models
 
 
+class OrderedGoodAdminInline(NestedTabularInline):
+    model = models.OrderedGood
+    readonly_fields = ('good', 'bar_code')
+    can_delete = False
+    extra = 0
+
+
+@admin.register(models.Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('customer', 'total')
+    inlines = (OrderedGoodAdminInline, )
+    readonly_fields = ('customer', 'total', 'pick_point', 'pick_point_cell')
+
+
+class OrderAdminInline(NestedTabularInline):
+    model = models.Order
+    inlines = (OrderedGoodAdminInline, )
+    readonly_fields = ('total', 'pick_point', 'pick_point_cell')
+    extra = 0
+
+
 @admin.register(models.Customer)
-class CustomerAdmin(admin.ModelAdmin):
+class CustomerAdmin(NestedModelAdmin):
     list_display = ('fio', 'phone')
+    inlines = (OrderAdminInline, )
     readonly_fields = ('order_count', 'purchase_percent')
 
 
@@ -24,6 +47,7 @@ class GoodAdmin(admin.ModelAdmin):
 class GoodAdminInline(admin.TabularInline):
     model = models.Good
     readonly_fields = ('rating', )
+    extra = 0
 
 
 @admin.register(models.Seller)
@@ -35,6 +59,7 @@ class SellerAdmin(admin.ModelAdmin):
 
 class CartGoodAdminInline(admin.TabularInline):
     model = models.CartGood
+    extra = 0
 
 
 @admin.register(models.Cart)

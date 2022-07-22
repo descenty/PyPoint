@@ -8,11 +8,12 @@ from main_app.promo_codes import promo_codes
 
 
 class Cart(models.Model):
-    count = models.PositiveSmallIntegerField(default=0, blank=True, verbose_name='Количество товаров')
-    total = models.DecimalField(default=0.00, blank=True, max_digits=10, decimal_places=2, verbose_name='Сумма')
-    total_with_discount = models.DecimalField(default=0.00, blank=True, max_digits=10, decimal_places=2, verbose_name='Сумма со скидкой')
-    promo_code = models.CharField(max_length=30, blank=True, null=True, verbose_name='Промокод')
-    promo_code_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='Название промокода')
+    count = models.PositiveSmallIntegerField('Количество товаров', default=0, blank=True)
+    total = models.DecimalField('Сумма', default=0.00, blank=True, max_digits=10, decimal_places=2)
+    total_with_discount = models.DecimalField('Сумма со скидкой', default=0.00, blank=True, max_digits=10,
+                                              decimal_places=2)
+    promo_code = models.CharField('Промокод', max_length=30, blank=True, null=True)
+    promo_code_name = models.CharField('Название промокода', max_length=100, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Корзина'
@@ -26,6 +27,7 @@ class Cart(models.Model):
         self.count = sum(x.quantity for x in cart_goods)
         self.total = sum(x.good.price * x.quantity for x in cart_goods)
         self.total_with_discount = self.total
+
         activated = False
         if PromoCode.objects.filter(value=self.promo_code).exists():
             promo_code = PromoCode.objects.get(value=self.promo_code)
@@ -131,10 +133,85 @@ class CartGood(models.Model):
         return f'{self.good.name} - {self.good.price * self.quantity}'
 
 
+class Order(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders', verbose_name='Клиент')
+    total = models.DecimalField(default=0.00, blank=True, max_digits=10, decimal_places=2, verbose_name='Сумма')
+    pick_point = models.ForeignKey(PickPoint, null=True, blank=True, on_delete=models.CASCADE, verbose_name='Пункт выдачи')
+    pick_point_cell = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Ячейка')
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
+
+    def __str__(self):
+        return f'Заказ №{self.id}'
+
+
 class OrderedGood(models.Model):
-    good = models.ForeignKey(Good, on_delete=models.CASCADE)
-    bar_code = models.CharField(max_length=20, null=True)
-    pick_point_customer = models.ForeignKey(PickPointCustomer, on_delete=models.CASCADE)
+    good = models.ForeignKey(Good, on_delete=models.CASCADE, verbose_name='Товар')
+    bar_code = models.CharField('ШК', max_length=10, null=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, related_name='ordered_goods')
+
+    def __str__(self):
+        return f'{self.bar_code} {self.good.name}'
+
+    class Meta:
+        verbose_name = 'Заказанный товар'
+        verbose_name_plural = 'Заказанные товары'
+
+
+class Driver(models.Model):
+    fio = models.CharField('ФИО', max_length=50)
+    phone = models.CharField('Телефон', max_length=11, unique=True)
+    passport = models.CharField('Паспортные данные', max_length=100)
+    license = models.CharField('Водительские права', max_length=50)
+    payroll_card = models.CharField('Номер зарплатной карты', max_length=16, blank=True, null=True)
+    fuel_card = models.CharField('Номер топливной карты', max_length=16, blank=True, null=True)
+    hourly_rate = models.PositiveSmallIntegerField('Почасовая ставка', blank=True, null=True)
+
+
+class Vehicle(models.Model):
+    class VehicleType(models.TextChoices):
+        B = 0
+        C = 1
+        D = 2
+
+    name = models.CharField('Наименование', max_length=30)
+    license_plate = models.CharField('Регистрационный номер', max_length=8)
+    category = models.PositiveSmallIntegerField('Категория', choices=VehicleType.choices)
+    registration = models.ImageField('Свидетельство о регистрации', upload_to='vehicle/registrations')
+    insurance = models.ImageField('ОСАГО И КАСКО', upload_to='vehicles/insurances', null=True, blank=True)
+    photo = models.ImageField('Фотография', upload_to='vehicles/photos', null=True, blank=True)
+    ready_for_carriage = models.BooleanField('Готова к перевозкам')
+    in_work = models.BooleanField('В работе')
+
+
+class Delivery(models.Model):
+    class DeliveryStatus(models.TextChoices):
+        CREATED = 0
+        FORMED = 1
+        TRANSIT = 2
+        COMPLETED = 3
+        CANCELED = 4
+
+    sender_address = models.CharField('Адрес отправителя', max_length=100)
+    recipient_address = models.CharField('Адрес получателя', max_length=100)
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    driver_payment = models.PositiveSmallIntegerField('Оплата')
+    ordered_goods = models.ManyToManyField(OrderedGood)
+
+
+class DeliveryStatus(models.Model):
+    class DeliveryStatusType(models.TextChoices):
+        CREATED = 0
+        FORMED = 1
+        TRANSIT = 2
+        COMPLETED = 3
+        CANCELED = 4
+
+    status_type = models.IntegerField('Статус', choices=DeliveryStatusType.choices)
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
+    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE, related_name='statuses')
 
 
 class PromoCode(models.Model):
@@ -155,7 +232,7 @@ class GoodsStatus(models.Model):
         RECEIVED = 4
         CANCELED = 5
         SENT_BACK = 6
+
     type = models.IntegerField(choices=StatusType.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     good = models.ForeignKey(OrderedGood, on_delete=models.CASCADE)
-
