@@ -2,29 +2,40 @@
 {% block content %}
     <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            <form action="{% url 'update_cart_good' 'add' %}" method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.path }}">
-                {% for good in goods %}
-                    <div class="col">
-                        <div class="card shadow-sm">
-                            <img src="/media/{{ good.image }}" alt="" class="bd-placeholder-img card-img-top"
-                                 width="100%" height="100%"/>
-                            <div class="card-body">
-                                <p class="card-text">{{ good.description }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">{{ good.price }} руб.</small>
-                                    <div class="btn-group">
-                                        <button type="submit" class="btn btn-sm btn-primary" name="good_id"
-                                                value="{{ good.id }}">Добавить в корзину
-                                        </button>
-                                    </div>
+            {% for good in goods %}
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <img src="/media/{{ good.image }}" alt="" class="bd-placeholder-img card-img-top"
+                             width="100%" height="100%"/>
+                        <div class="card-body">
+                            <p class="card-text">{{ good.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ good.price }} руб.</small>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-primary add-to-cart-btn" value="{{ good.id }}">
+                                        Добавить в корзину
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                {% endfor %}
-            </form>
+                </div>
+            {% endfor %}
         </div>
     </div>
+    <script>
+        async function add_to_cart(event) {
+            await fetch("{% url 'add-to-cart' %}", {
+                method: 'PATCH',
+                headers: baseHeaders,
+                body: JSON.stringify({good_id: event.target.value})
+            })
+            event.target.disabled = true
+            setTimeout(() => event.target.disabled = false, 500)
+        }
+
+        [...document.getElementsByClassName('add-to-cart-btn')].forEach(add_to_cart_btn => {
+            add_to_cart_btn.addEventListener('click', async (event) => await add_to_cart(event))
+        });
+    </script>
 {% endblock %}

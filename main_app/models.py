@@ -120,6 +120,7 @@ class CartGood(models.Model):
     quantity = models.PositiveSmallIntegerField(verbose_name='Количество')
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, verbose_name='Корзина', related_name='cart_goods')
     created_date = models.DateTimeField(default=now, editable=False)
+    selected = models.BooleanField('Выбран', blank=True, default=True)
 
     def save(self, *args, **kwargs):
         super(CartGood, self).save(*args, **kwargs)

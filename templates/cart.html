@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     {% if cart.cart_goods.all %}
         <div class="row g-5">
@@ -10,27 +11,24 @@
                 <ul class="list-group mb-3">
                     {% for cart_good in cart.cart_goods.all|dictsort:"created_date" %}
                         <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <input class="form-check-input form-check cart-good-checkbox" type="checkbox"
+                                   value="{{ cart_good.id }}"
+                                    {% if cart_good.selected %} checked {% endif %} id="flexCheckDefault">&nbsp;
                             <div>
-                                <h6 class="my-0">{{ cart_good.good.name }} {{ cart_good.quantity }} шт.</h6>
+                                <h6 class="my-0">{{ cart_good.good.name }}</h6>
                                 <small class="text-muted">{{ cart_good.good.description }}</small>
                             </div>
                             <div class="btn-group">
-                                <form action="{% url 'update_cart_good' 'add' %}" method="POST">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="next" value="{{ request.path }}">
-                                    <button type="submit" class="btn btn-outline-primary" name="good_id"
-                                            value="{{ cart_good.good.id }}">+
-                                    </button>
-                                </form>
-                                <form action="{% url 'update_cart_good' 'delete' %}" method="POST">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="next" value="{{ request.path }}">
-                                    <button type="submit" class="btn btn-outline-primary" name="good_id"
-                                            value="{{ cart_good.good.id }}">-
-                                    </button>
-                                </form>
+                                <button class="btn btn-outline-primary add-btn" data-cart_good_id="{{ cart_good.id }}"
+                                        data-add="1">+
+                                </button>
+                                <button class="btn btn-outline-primary add-btn" data-cart_good_id="{{ cart_good.id }}"
+                                        data-add="-1">-
+                                </button>
                             </div>
                             <span class="text-muted">{{ cart_good.good.price }} руб.</span>
+                            <span class="badge bg-primary rounded-pill"
+                                  id="cart-good-quantity-{{ cart_good.id }}">{{ cart_good.quantity }}</span>
                         </li>
                     {% endfor %}
                     {% if cart.promo_code %}
@@ -56,7 +54,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.path }}">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="промокод" name="promo_code">
+                        <input type="text" class="form-control" placeholder="промокод" name="promo_code"/>
                         <button type="submit" class="btn btn-secondary">Подтвердить</button>
                     </div>
                 </form>
@@ -229,4 +227,42 @@
     {% else %}
         <h4 class="mb-3">Корзина пуста</h4>
     {% endif %}
+    <script>
+        //TODO НУЖНО ПОЛУЧАТЬ НОВЫЕ ДАННЫЕ О КОРЗИНЕ ПОСЛЕ ИЗМЕНЕНИЯ ЧЕРЕЗ ЕЩЕ ОДИН ЗАПРОС
+        //TODO НУЖНО ПЕРЕПИСАТЬ С ИСПОЛЬЗОВАНИЕМ AXIOS С ПРОМИСАМИ
+        async function update_card_good_selected(event) {
+            await fetch("{% url 'cart-goods-list' %}" + `${event.target.value}/`, {
+                method: 'PATCH',
+                headers: baseHeaders,
+                body: JSON.stringify({selected: event.target.checked})
+            })
+            event.target.disabled = true
+            setTimeout(() => event.target.disabled = false, 500)
+        }
+
+        [...document.getElementsByClassName('cart-good-checkbox')].forEach(checkbox => {
+            checkbox.addEventListener('change', async (event) => await update_card_good_selected(event))
+        });
+
+        async function update_cart_good_quantity(event) {
+            let quantity_label = document.getElementById(`cart-good-quantity-${event.target.dataset.cart_good_id}`)
+            let add = Number(event.target.dataset.add)
+            let cart_good_id = Number(event.target.dataset.cart_good_id)
+            let new_quantity = Number(quantity_label.innerHTML) + add
+            await fetch("{% url 'cart-goods-list' %}" + `${cart_good_id}/`, {
+                method: 'PATCH',
+                headers: baseHeaders,
+                body: JSON.stringify({quantity: new_quantity})
+            })
+            quantity_label.innerHTML = new_quantity.toString()
+            event.target.disabled = true
+            setTimeout(() => {
+                event.target.disabled = false;
+            }, 500)
+        }
+
+        [...document.getElementsByClassName('add-btn')].forEach(add_btn => {
+            add_btn.addEventListener('click', async (event) => await update_cart_good_quantity(event))
+        });
+    </script>
 {% endblock %}

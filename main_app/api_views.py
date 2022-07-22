@@ -1,7 +1,11 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render
+from django.http import HttpResponse, HttpRequest
+from django.shortcuts import render, get_object_or_404
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import *
 from .serializers import *
@@ -37,8 +41,7 @@ class PickPointViewSet(viewsets.ModelViewSet):
         return PickPointDetailSerializer
 
     def get_queryset(self):
-        user_id = Token.objects.get(key=self.request.auth).user_id
-        return PickPoint.objects.filter(owner_id=user_id)
+        return PickPoint.objects.filter(owner=self.request.user)
 
     def create(self, request, *args, **kwargs):
         user_id = Token.objects.get(key=self.request.auth).user_id
@@ -65,3 +68,25 @@ class GoodViewSet(viewsets.ModelViewSet):
     queryset = Good.objects.all()
     serializer_class = GoodSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
+
+
+class CartGoodViewSet(viewsets.ModelViewSet):
+    serializer_class = CartGoodSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def get_queryset(self):
+        return CartGood.objects.filter(cart__customer=self.request.user)
+
+
+@csrf_exempt
+def add_to_cart(request):
+    good_id = JSONParser().parse(request)['good_id']
+    good = get_object_or_404(Good, id=good_id)
+    cart: Cart = request.user.cart
+    if cart.cart_goods.filter(good_id=good.id).exists():
+        cart_good = cart.cart_goods.get(good_id=good.id)
+        cart_good.quantity += 1
+    else:
+        cart_good = CartGood.objects.create(good_id=good.id, quantity=1, cart=request.user.cart)
+    cart_good.save()
+    return HttpResponse(status=200)
