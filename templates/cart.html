@@ -239,8 +239,6 @@
             })
         }
 
-        //TODO НУЖНО ПОЛУЧАТЬ НОВЫЕ ДАННЫЕ О КОРЗИНЕ ПОСЛЕ ИЗМЕНЕНИЯ ЧЕРЕЗ ЕЩЕ ОДИН ЗАПРОС
-        //TODO НУЖНО ПЕРЕПИСАТЬ С ИСПОЛЬЗОВАНИЕМ AXIOS С ПРОМИСАМИ
         async function update_card_good_selected(event) {
             event.target.disabled = true
             setTimeout(() => event.target.disabled = false, 500)
