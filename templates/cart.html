@@ -37,22 +37,21 @@
                                 <h6 class="my-0">{{ cart.promo_code }}</h6>
                                 <small>{{ cart.promo_code_name }}</small>
                             </div>
-                            <span class="text-success">-{{ total_difference }}</span>
+                            <span class="text-success" id="promocode-difference">-{{ total_difference }} руб.</span>
                         </li>
                     {% endif %}
                     <li class="list-group-item d-flex justify-content-between">
                         <span>Итого без скидки</span>
-                        <strong>{{ cart.total }} руб.</strong>
+                        <strong id="total">{{ cart.total }} руб.</strong>
                     </li>
                     <li class="list-group-item d-flex justify-content-between">
                         <span>Итого со скидкой</span>
-                        <strong>{{ cart.total_with_discount }} руб.</strong>
+                        <strong id="total-discount">{{ cart.total_with_discount }} руб.</strong>
                     </li>
                 </ul>
 
                 <form class="card p-2" action="{% url 'update_cart_promo_code' %}" method="POST">
                     {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.path }}">
                     <div class="input-group">
                         <input type="text" class="form-control" placeholder="промокод" name="promo_code"/>
                         <button type="submit" class="btn btn-secondary">Подтвердить</button>
@@ -228,16 +227,26 @@
         <h4 class="mb-3">Корзина пуста</h4>
     {% endif %}
     <script>
+        let total_label = document.getElementById('total')
+        let total_discount_label = document.getElementById('total-discount')
+        let promocode_difference_label = document.getElementById('promocode-difference')
+
+        async function update_card() {
+            await axios.get("{% url 'get-cart' %}", baseConfig).then(response => {
+                total_label.innerHTML = response.data.total + ' руб.'
+                total_discount_label.innerHTML = response.data.total_with_discount + ' руб.'
+                promocode_difference_label.innerHTML = (response.data.total_with_discount - response.data.total).toFixed(2) + ' руб.'
+            })
+        }
+
         //TODO НУЖНО ПОЛУЧАТЬ НОВЫЕ ДАННЫЕ О КОРЗИНЕ ПОСЛЕ ИЗМЕНЕНИЯ ЧЕРЕЗ ЕЩЕ ОДИН ЗАПРОС
         //TODO НУЖНО ПЕРЕПИСАТЬ С ИСПОЛЬЗОВАНИЕМ AXIOS С ПРОМИСАМИ
         async function update_card_good_selected(event) {
-            await fetch("{% url 'cart-goods-list' %}" + `${event.target.value}/`, {
-                method: 'PATCH',
-                headers: baseHeaders,
-                body: JSON.stringify({selected: event.target.checked})
-            })
             event.target.disabled = true
             setTimeout(() => event.target.disabled = false, 500)
+            await axios.patch("{% url 'cart-goods-list' %}" + `${event.target.value}/`, {
+                selected: event.target.checked
+            }, baseConfig).then(async () => await update_card())
         }
 
         [...document.getElementsByClassName('cart-good-checkbox')].forEach(checkbox => {
@@ -249,16 +258,17 @@
             let add = Number(event.target.dataset.add)
             let cart_good_id = Number(event.target.dataset.cart_good_id)
             let new_quantity = Number(quantity_label.innerHTML) + add
-            await fetch("{% url 'cart-goods-list' %}" + `${cart_good_id}/`, {
-                method: 'PATCH',
-                headers: baseHeaders,
-                body: JSON.stringify({quantity: new_quantity})
-            })
-            quantity_label.innerHTML = new_quantity.toString()
             event.target.disabled = true
-            setTimeout(() => {
-                event.target.disabled = false;
-            }, 500)
+            setTimeout(() => event.target.disabled = false, 500)
+            await axios.patch("{% url 'cart-goods-list' %}" + `${cart_good_id}/`, {
+                quantity: new_quantity
+            }, baseConfig).then(async () => {
+                if (new_quantity === 0) {
+                    document.location.reload();
+                }
+                quantity_label.innerHTML = new_quantity.toString()
+                await update_card()
+            })
         }
 
         [...document.getElementsByClassName('add-btn')].forEach(add_btn => {

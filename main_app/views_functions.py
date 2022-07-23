@@ -5,9 +5,9 @@ from django.urls import reverse
 from main_app.models import CartGood, Good, Cart
 
 
-def update_cart_promo_code(request):
+def update_cart_promo_code(request: HttpRequest):
     cart: Cart = request.user.cart
     cart.promo_code = request.POST.get('promo_code')
     cart.save()
-    return HttpResponseRedirect(request.POST.get('next'))
+    return HttpResponseRedirect(request.headers.get('referer'))
 

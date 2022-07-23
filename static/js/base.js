@@ -4,6 +4,9 @@ function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-const baseHeaders = new Headers();
-baseHeaders.append('Content-Type', 'application/json');
-baseHeaders.append('X-CSRFToken', getCookie('csrftoken'))
+const baseConfig= {
+  headers: {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+  }
+}

@@ -1,5 +1,5 @@
 from django.urls import path, include, re_path
-from main_app.api_views import PickPointViewSet, CreateCustomerView, CartGoodViewSet, add_to_cart
+from main_app.api_views import PickPointViewSet, CreateCustomerView, CartGoodViewSet, get_cart, AddToCart
 from rest_framework import permissions, routers
 from rest_framework.authtoken import views
 from drf_yasg import openapi
@@ -25,8 +25,9 @@ router.register(r'cart-goods', CartGoodViewSet, basename='cart-goods')
 urlpatterns = [
     path('accounts/register/', CreateCustomerView.as_view()),
     path('accounts/', include('rest_framework.urls')),
-    path('accounts/token-auth/', views.obtain_auth_token),
-    path('add-to-cart/', add_to_cart, name='add-to-cart'),
+    path('accounts/token-auth/', views.obtain_auth_token, name='token-auth'),
+    path('add-to-cart/', AddToCart.as_view(), name='add-to-cart'),
+    path('get-cart/', get_cart, name='get-cart'),
     path('', include(router.urls)),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

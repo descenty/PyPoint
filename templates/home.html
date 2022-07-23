@@ -24,15 +24,19 @@
         </div>
     </div>
     <script>
+        cart_quantity_label = document.getElementById('cart-quantity')
+
         async function add_to_cart(event) {
-            await fetch("{% url 'add-to-cart' %}", {
-                method: 'PATCH',
-                headers: baseHeaders,
-                body: JSON.stringify({good_id: event.target.value})
-            })
             event.target.disabled = true
             setTimeout(() => event.target.disabled = false, 500)
+            await axios.post("{% url 'add-to-cart' %}", {
+                good_id: Number(event.target.value)
+            }, baseConfig).then(async () => {
+                await axios.get("{% url 'get-cart' %}", baseConfig).then(
+                    response => cart_quantity_label.innerHTML = response.data.count)
+            })
         }
+
 
         [...document.getElementsByClassName('add-to-cart-btn')].forEach(add_to_cart_btn => {
             add_to_cart_btn.addEventListener('click', async (event) => await add_to_cart(event))

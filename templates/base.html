@@ -8,10 +8,11 @@
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     <link rel='stylesheet' type="text/css" href="{% static 'styles.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src='{% static 'js/base.js' %}'></script>
     <title>{{ title }}</title>
 </head>
 <body>
+{% csrf_token %}
+<script src='{% static 'js/base.js' %}'></script>
 <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'home' %}">PyPoint</a>
     {% if user.is_authenticated %}

@@ -24,8 +24,8 @@ class Cart(models.Model):
 
     def save(self, *args, **kwargs):
         cart_goods = self.cart_goods.all()
-        self.count = sum(x.quantity for x in cart_goods)
-        self.total = sum(x.good.price * x.quantity for x in cart_goods)
+        self.count = cart_goods.count()
+        self.total = sum(x.good.price * x.quantity for x in cart_goods if x.selected)
         self.total_with_discount = self.total
 
         activated = False
@@ -123,7 +123,10 @@ class CartGood(models.Model):
     selected = models.BooleanField('Выбран', blank=True, default=True)
 
     def save(self, *args, **kwargs):
-        super(CartGood, self).save(*args, **kwargs)
+        if self.quantity == 0:
+            self.delete(*args, **kwargs)
+        else:
+            super(CartGood, self).save(*args, **kwargs)
         self.cart.save()
 
     def delete(self, *args, **kwargs):
