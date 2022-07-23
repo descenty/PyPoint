@@ -10,7 +10,7 @@ from django.conf import settings
 urlpatterns = [
     path('api/', include('main_app.api_urls')),
     path('', HomeView.as_view(), name='home'),
-    path('orders/', HomeView.as_view(), name='orders'),
+    path('orders/', TemplateView.as_view(template_name="map.html"), name='orders'),
     path('sellers/', SellersView.as_view(), name='sellers'),
     path('cart/', CartView.as_view(), name='cart'),
     path('update_cart_promo_code/', update_cart_promo_code, name='update_cart_promo_code'),

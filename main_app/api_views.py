@@ -1,5 +1,6 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse
+from rest_framework.request import Request
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -8,8 +9,8 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
-
-from .models import *
+from main_app.in_memory_data import *
+from .models import Vehicle
 from .serializers import *
 from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
@@ -82,16 +83,31 @@ class CartGoodViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated, ))
+@permission_classes((IsAuthenticated,))
 def get_cart(request):
     print(request.user)
     return Response(CartSerializer(Cart.objects.get(customer=request.user)).data)
 
 
-class AddToCart(APIView):
-    permission_classes = (IsAuthenticated, )
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def post_vehicle_coords(request: Request):
+    serializer = VehicleCoordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+    get_object_or_404(Vehicle, id=data['vehicle_id'])
+    vehicle_coords[data['vehicle_id']] = Coord(
+        latitude=data['latitude'],
+        longitude=data['longitude']
+    )
+    print(vehicle_coords)
+    return HttpResponse(status=200)
 
-    def post(self, request, format=None):
+
+class AddToCart(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
         print(request.user)
         good_id = request.data['good_id']
         good = get_object_or_404(Good, id=good_id)

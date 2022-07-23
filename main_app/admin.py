@@ -4,24 +4,32 @@ from nested_admin.nested import NestedStackedInline, NestedTabularInline, Nested
 from . import models
 
 
+class OrderedGoodStatusAdminInline(NestedTabularInline):
+    model = models.OrderedGoodStatus
+    readonly_fields = ('status_type', 'created_at')
+    can_delete = False
+    extra = 0
+
+
 class OrderedGoodAdminInline(NestedTabularInline):
     model = models.OrderedGood
     readonly_fields = ('good', 'bar_code')
+    inlines = (OrderedGoodStatusAdminInline, )
     can_delete = False
     extra = 0
 
 
 @admin.register(models.Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(NestedModelAdmin):
     list_display = ('customer', 'total')
     inlines = (OrderedGoodAdminInline, )
-    readonly_fields = ('customer', 'total', 'pick_point', 'pick_point_cell')
+    readonly_fields = ('customer', 'total', 'pick_point', 'pick_point_cell', 'delivery_point')
 
 
 class OrderAdminInline(NestedTabularInline):
     model = models.Order
     inlines = (OrderedGoodAdminInline, )
-    readonly_fields = ('total', 'pick_point', 'pick_point_cell')
+    readonly_fields = ('total', 'pick_point', 'pick_point_cell', 'delivery_point')
     extra = 0
 
 
@@ -72,3 +80,8 @@ class CartAdmin(admin.ModelAdmin):
 class PromoCodeAdmin(admin.ModelAdmin):
     list_display = ('value', 'promo_code_type')
 
+
+@admin.register(models.Vehicle)
+class VehicleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'category', 'image_tag')
+    readonly_fields = ('image_tag',)

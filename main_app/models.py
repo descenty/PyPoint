@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
 from .managers import CustomerManager
@@ -140,8 +141,10 @@ class CartGood(models.Model):
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders', verbose_name='Клиент')
     total = models.DecimalField(default=0.00, blank=True, max_digits=10, decimal_places=2, verbose_name='Сумма')
-    pick_point = models.ForeignKey(PickPoint, null=True, blank=True, on_delete=models.CASCADE, verbose_name='Пункт выдачи')
+    pick_point = models.ForeignKey(PickPoint, null=True, blank=True, on_delete=models.CASCADE,
+                                   verbose_name='Пункт выдачи')
     pick_point_cell = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Ячейка')
+    delivery_point = models.CharField(max_length=150, null=True, blank=True, verbose_name='Адрес доставки')
 
     class Meta:
         verbose_name = 'Заказ'
@@ -175,29 +178,36 @@ class Driver(models.Model):
 
 
 class Vehicle(models.Model):
-    class VehicleType(models.TextChoices):
-        B = 0
-        C = 1
-        D = 2
+    vehicle_types = (
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C'),
+    )
 
     name = models.CharField('Наименование', max_length=30)
     license_plate = models.CharField('Регистрационный номер', max_length=8)
-    category = models.PositiveSmallIntegerField('Категория', choices=VehicleType.choices)
-    registration = models.ImageField('Свидетельство о регистрации', upload_to='vehicle/registrations')
-    insurance = models.ImageField('ОСАГО И КАСКО', upload_to='vehicles/insurances', null=True, blank=True)
+    category = models.CharField('Категория', choices=vehicle_types, max_length=1)
+    # registration = models.ImageField('Свидетельство о регистрации', upload_to='vehicle/registrations')
+    # insurance = models.ImageField('ОСАГО И КАСКО', upload_to='vehicles/insurances', null=True, blank=True)
     photo = models.ImageField('Фотография', upload_to='vehicles/photos', null=True, blank=True)
     ready_for_carriage = models.BooleanField('Готова к перевозкам')
     in_work = models.BooleanField('В работе')
 
+    def image_tag(self):
+        return mark_safe(f'<img src="{self.photo.url}" width="150"/>')
+
+    image_tag.short_description = 'Фотография'
+    image_tag.allow_tags = True
+
+    def __str__(self):
+        return f'{self.name} ({self.category})'
+
+    class Meta:
+        verbose_name = 'Транспорт'
+        verbose_name_plural = 'Транспорт'
+
 
 class Delivery(models.Model):
-    class DeliveryStatus(models.TextChoices):
-        CREATED = 0
-        FORMED = 1
-        TRANSIT = 2
-        COMPLETED = 3
-        CANCELED = 4
-
     sender_address = models.CharField('Адрес отправителя', max_length=100)
     recipient_address = models.CharField('Адрес получателя', max_length=100)
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
@@ -207,13 +217,13 @@ class Delivery(models.Model):
 
 class DeliveryStatus(models.Model):
     class DeliveryStatusType(models.TextChoices):
-        CREATED = 0
-        FORMED = 1
-        TRANSIT = 2
-        COMPLETED = 3
-        CANCELED = 4
+        CREATED = 'Создана'
+        FORMED = 'Сформирована'
+        TRANSIT = 'В пути'
+        COMPLETED = 'Завершена'
+        CANCELED = 'Отменена'
 
-    status_type = models.IntegerField('Статус', choices=DeliveryStatusType.choices)
+    status_type = models.CharField('Статус', choices=DeliveryStatusType.choices, max_length=30)
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE, related_name='statuses')
 
@@ -227,16 +237,19 @@ class PromoCode(models.Model):
         verbose_name_plural = 'Промокоды'
 
 
-class GoodsStatus(models.Model):
-    class StatusType(models.TextChoices):
-        CREATED = 0
-        FORMED = 1
-        SENT = 2
-        ARRIVED = 3
-        RECEIVED = 4
-        CANCELED = 5
-        SENT_BACK = 6
+class OrderedGoodStatus(models.Model):
+    class OrderedGoodStatusType(models.TextChoices):
+        CREATED = 'Создан'
+        FORMED = 'Сформирован'
+        SENT = 'Отправлен'
+        ARRIVED = 'Прибыл в пункт выдачи'
+        RECEIVED = 'Получен клиентом'
+        CANCELED = 'Отменён'
 
-    type = models.IntegerField(choices=StatusType.choices)
-    created_at = models.DateTimeField(auto_now_add=True)
-    good = models.ForeignKey(OrderedGood, on_delete=models.CASCADE)
+    status_type = models.CharField('Статус', choices=OrderedGoodStatusType.choices, max_length=30)
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
+    ordered_good = models.ForeignKey(OrderedGood, on_delete=models.CASCADE, related_name='statuses')
+
+    class Meta:
+        verbose_name = 'Статус товара'
+        verbose_name_plural = 'Статусы товара'
