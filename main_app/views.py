@@ -48,7 +48,6 @@ class CartView(DataMixin, DetailView):
             c_def['form'] = OrderCreationForm(self.request.POST)
         else:
             c_def['form'] = OrderCreationForm()
-        print(c_def)
         return context | c_def
 
     def get_object(self, **kwargs):

@@ -1,20 +1,19 @@
 {% load static %}
+{% load tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
-    <link rel='stylesheet' type="text/css" href="{% static 'styles.css' %}">
+    {% tailwind_css %}
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <title>{{ title }}</title>
 </head>
 <body>
 {% csrf_token %}
 <script src='{% static 'js/base.js' %}'></script>
-<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'home' %}">PyPoint</a>
+<header class="flex bg-gradient-to-r from-blue-500 to-cyan-500 space-x-8 text-white p-2">
+    <a href="{% url 'home' %}">PyPoint</a>
     {% if user.is_authenticated %}
         <ul class="navbar-nav px-3"><a class="nav-link">{{ user.fio }}</a></ul>
         <ul class="navbar-nav px-3">
@@ -28,37 +27,26 @@
             <a class="nav-link" href="{% url 'login' %}">Войти</a>
         </ul>
     {% endif %}
-</nav>
-<div class="row">
-    <nav class="col-lg-2 d-md-block bg-light sidebar">
-        <div class="dropdown">
-            <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle"
-               id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="" alt="" width="32" height="32" class="rounded-circle me-2">
-                <strong>{{ user }}</strong>
-            </a>
-        </div>
-        <hr>
-        <ul class="nav nav-pills flex-column mb-auto">
+</header>
+<div class="flex flex-row space-x-8 ">
+    <div class="basis-1/6 h-full p-3">
+        <div class="flex flex-col space-y-4">
+            <span class="px-3 font-semibold">{{ user }}</span>
             {% for element in menu %}
-                <li class="nav-item">
-                    <a href="{% url element.url_name %}" class="nav-link link-dark" aria-current="page">
-                        <i class="{{ element.icon_class }}"></i>
-                        &nbsp;{{ element.title }}
-                    </a>
-                </li>
+                <a class="p-3 items-center shadow-lg rounded-lg" href="{% url element.url_name %}">
+                    <i class="{{ element.icon_class }}"></i>&nbsp;
+                    {{ element.title }}
+                </a>
             {% endfor %}
             {% if cart_menu_element %}
-                <li class="nav-item">
-                    <a href="{% url cart_menu_element.url_name %}" class="nav-link link-dark" aria-current="page">
-                        <i class="{{ cart_menu_element.icon_class }}"></i>
-                        &nbsp;{{ cart_menu_element.title }}
-                        <span class="badge bg-primary rounded-pill" id="cart-quantity">{{ cart_goods_count }}</span>
-                    </a>
-                </li>
+                <a class="p-3 items-center shadow-lg rounded-lg" href="{% url cart_menu_element.url_name %}">
+                    <i class="{{ cart_menu_element.icon_class }}"></i>&nbsp;
+                    {{ cart_menu_element.title }}
+                    <span class="" id="cart-quantity">{{ cart_goods_count }}</span>
+                </a>
             {% endif %}
-        </ul>
-    </nav>
+        </div>
+    </div>
     {% block content %}
     {% endblock %}
 </div>

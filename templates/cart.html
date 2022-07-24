@@ -2,92 +2,90 @@
 {% load static %}
 {% block content %}
     {% if cart.cart_goods.all %}
-        <div class="row g-5">
-            <div class="col-md-5 col-lg-4 order-md-last">
-                <h4 class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-primary">Ваша корзина</span>
-                    <span class="badge bg-primary rounded-pill">{{ cart_goods_count }}</span>
-                </h4>
-                <ul class="list-group mb-3">
-                    {% for cart_good in cart.cart_goods.all|dictsort:"created_date" %}
-                        <li class="list-group-item d-flex justify-content-between lh-sm">
-                            <input class="form-check-input form-check cart-good-checkbox" type="checkbox"
-                                   value="{{ cart_good.id }}"
-                                    {% if cart_good.selected %} checked {% endif %} id="flexCheckDefault">&nbsp;
-                            <div>
-                                <h6 class="my-0">{{ cart_good.good.name }}</h6>
-                                <small class="text-muted">{{ cart_good.good.description }}</small>
-                            </div>
-                            <div class="btn-group">
-                                <button class="btn btn-outline-primary add-btn" data-cart_good_id="{{ cart_good.id }}"
-                                        data-add="1">+
-                                </button>
-                                <button class="btn btn-outline-primary add-btn" data-cart_good_id="{{ cart_good.id }}"
-                                        data-add="-1">-
-                                </button>
-                            </div>
-                            <span class="text-muted">{{ cart_good.good.price }} руб.</span>
-                            <span class="badge bg-primary rounded-pill"
+        <div class="basis-1/3">
+            <h4 class="mb-3">Оформление заказа</h4>
+            <form class="needs-validation" novalidate="">
+                <div class="my-3">
+                    <div class="form-check">
+                        <input id="credit" name="paymentMethod" type="radio" class="form-check-input" checked=""
+                               required="">
+                        <label class="form-check-label" for="credit">Пункт выдачи</label>
+                    </div>
+                    <div class="form-check">
+                        <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
+                               required="">
+                        <label class="form-check-label" for="debit">Самовывоз</label>
+                    </div>
+                </div>
+
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Пункт выдачи</label>
+                        {{ form.pick_point }}
+                        <label class="form-label">Адрес доставки</label>
+                        {{ form.delivery_point }}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <button class="w-100 btn btn-primary btn-lg" type="submit">Оформить заказ</button>
+            </form>
+        </div>
+        <div class="basis-1/3">
+            <div class="flex flex-row items-center p-3 space-x-3">
+                <span class="text-xl">Корзина</span>
+                <span class="bg-blue-500 rounded-lg text-white px-2 text-l">{{ cart_goods_count }}</span>
+            </div>
+            <hr>
+            <div class="flex flex-col space-y-3">
+                {% for cart_good in cart.cart_goods.all|dictsort:"created_date" %}
+                    <div class="flex flex-row p-3 items-center shadow-lg rounded-lg space-x-4">
+                        <input class="cart-good-checkbox w-4 h-4 text-blue-500 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 focus:ring-2"
+                               type="checkbox" value="{{ cart_good.id }}"
+                                {% if cart_good.selected %} checked {% endif %} id="flexCheckDefault">&nbsp;
+                        <h6 class="font-semibold basis-1/2">{{ cart_good.good.name }}</h6>
+                        <div class="flex flex-row justify-between space-x-1">
+                            <button class="bg-blue-500 rounded-lg hover:bg-blue-400 w-6 h-6 text-white add-btn"
+                                    data-cart_good_id="{{ cart_good.id }}"
+                                    data-add="1">+
+                            </button>
+                            <span class="text-center px-2"
                                   id="cart-good-quantity-{{ cart_good.id }}">{{ cart_good.quantity }}</span>
-                        </li>
-                    {% endfor %}
-                    {% if cart.promo_code %}
-                        <li class="list-group-item d-flex justify-content-between bg-light">
-                            <div class="text-success">
-                                <h6 class="my-0">{{ cart.promo_code }}</h6>
-                                <small>{{ cart.promo_code_name }}</small>
-                            </div>
-                            <span class="text-success" id="promocode-difference">-{{ total_difference }} руб.</span>
-                        </li>
-                    {% endif %}
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Итого без скидки</span>
-                        <strong id="total">{{ cart.total }} руб.</strong>
+                            <button class="bg-blue-500 rounded-lg hover:bg-blue-400 w-6 h-6 text-white add-btn"
+                                    data-cart_good_id="{{ cart_good.id }}"
+                                    data-add="-1">-
+                            </button>
+                        </div>
+                        <span class="basis-1/3 text-right">{{ cart_good.good.price }} руб.</span>
+                    </div>
+                {% endfor %}
+                {% if cart.promo_code %}
+                    <li class="list-group-item d-flex justify-content-between bg-light">
+                        <div class="text-success">
+                            <h6 class="my-0">{{ cart.promo_code }}</h6>
+                            <small>{{ cart.promo_code_name }}</small>
+                        </div>
+                        <span class="text-success" id="promocode-difference">-{{ total_difference }} руб.</span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Итого со скидкой</span>
-                        <strong id="total-discount">{{ cart.total_with_discount }} руб.</strong>
-                    </li>
-                </ul>
-
-                <form class="card p-2" action="{% url 'update_cart_promo_code' %}" method="POST">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="промокод" name="promo_code"/>
-                        <button type="submit" class="btn btn-secondary">Подтвердить</button>
-                    </div>
-                </form>
+                {% endif %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Итого без скидки</span>
+                    <strong id="total">{{ cart.total }} руб.</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Итого со скидкой</span>
+                    <strong id="total-discount">{{ cart.total_with_discount }} руб.</strong>
+                </li>
             </div>
-            <div class="col-md-7 col-lg-8">
-                <h4 class="mb-3">Оформление заказа</h4>
-                <form class="needs-validation" novalidate="">
-                    <div class="my-3">
-                        <div class="form-check">
-                            <input id="credit" name="paymentMethod" type="radio" class="form-check-input" checked=""
-                                   required="">
-                            <label class="form-check-label" for="credit">Пункт выдачи</label>
-                        </div>
-                        <div class="form-check">
-                            <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                                   required="">
-                            <label class="form-check-label" for="debit">Самовывоз</label>
-                        </div>
-                    </div>
 
-                    <div class="row gy-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Пункт выдачи</label>
-                            {{ form.pick_point }}
-                            <label class="form-label">Адрес доставки</label>
-                            {{ form.delivery_point }}
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <button class="w-100 btn btn-primary btn-lg" type="submit">Оформить заказ</button>
-                </form>
-            </div>
+            <form class="card p-2" action="{% url 'update_cart_promo_code' %}" method="POST">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="промокод" name="promo_code"/>
+                    <button type="submit" class="btn btn-secondary">Подтвердить</button>
+                </div>
+            </form>
         </div>
     {% else %}
         <h4 class="mb-3">Корзина пуста</h4>

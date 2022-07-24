@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
@@ -26,10 +25,12 @@ SECRET_KEY = 'django-insecure-_e5lwtj4*5su8ag@6%8)qp^tu5$3a24%yz5&ghc1^0p_^39zrv
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.136']
+INTERNAL_IPS = ['127.0.0.1', '192.168.1.136']
+
+NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-
 
 # Application definition
 
@@ -45,8 +46,12 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_yasg',
     'nested_admin',
+    'tailwind',
+    'theme',
+    'django_browser_reload',
 ]
 
+TAILWIND_APP_NAME = 'theme'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = 'PyPoint.urls'
@@ -78,7 +84,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'PyPoint.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -114,7 +119,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -125,7 +129,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
