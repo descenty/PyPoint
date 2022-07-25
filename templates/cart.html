@@ -2,52 +2,50 @@
 {% load static %}
 {% block content %}
     {% if cart.cart_goods.all %}
-        <div class="p-6 col-span-3">
-            <h4 class="mb-3">Оформление заказа</h4>
-            <form class="needs-validation" novalidate="">
-                <div class="my-3">
-                    <div class="form-check">
-                        <input id="credit" name="paymentMethod" type="radio" class="form-check-input" checked=""
-                               required="">
-                        <label class="form-check-label" for="credit">Пункт выдачи</label>
-                    </div>
-                    <div class="form-check">
-                        <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                               required="">
-                        <label class="form-check-label" for="debit">Самовывоз</label>
-                    </div>
+        <div class="p-9 col-span-2 flex flex-col space-y-4">
+            <h4 class="text-xl">Оформление заказа</h4>
+            <div class="space-y-3">
+                <div class="">
+                    <input id="credit" name="paymentMethod" type="radio" class="" checked=""
+                           required="">
+                    <label class="" for="credit">Пункт выдачи</label>
                 </div>
-
-                <div class="row gy-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Пункт выдачи</label>
-                        {{ form.pick_point }}
-                        <label class="form-label">Адрес доставки</label>
-                        {{ form.delivery_point }}
-                    </div>
+                <div class="">
+                    <input id="debit" name="paymentMethod" type="radio" class=""
+                           required="">
+                    <label class="" for="debit">Самовывоз</label>
                 </div>
-                <hr class="my-4">
-                <button class="w-100 btn btn-primary btn-lg" type="submit">Оформить заказ</button>
+            </div>
+            <form class="space-y-3">
+                <div class="grid grid-cols-2 items-center">
+                    <label class="">Пункт выдачи</label>
+                    {{ form.pick_point }}
+                </div>
+                <div class="grid grid-cols-2 items-center">
+                    <label class="">Адрес доставки</label>
+                    {{ form.delivery_point }}
+                </div>
             </form>
+            <button class="rounded-lg text-sm w-40 font-semibold py-1 px-2 bg-slate-900 text-white hover:bg-slate-700" type="submit">Оформить заказ</button>
         </div>
-        <div class="p-6 col-span-3 text-lg">
+        <div class="p-6 col-start-5 col-span-3 text-lg">
             <div class="flex flex-row items-center p-3 space-x-3">
                 <span class="text-xl">Корзина</span>
                 <span class="bg-blue-500 rounded-full text-white px-2 text-l">{{ cart_goods_count }}</span>
             </div>
             <div class="space-y-1">
                 {% for cart_good in cart.cart_goods.all|dictsort:"created_date" %}
-                    <div class="grid grid-cols-3 p-3 rounded-lg">
-                        <div class="flex flex-row space-x-4 items-center col-span-2">
-                            <input class="cart-good-checkbox w-4 h-4 text-blue-500 bg-gray-100 rounded border-gray-300 hover:cursor-pointer focus:ring-blue-500 focus:ring-2"
+                    <div class="grid grid-cols-3 p-3 gap-6 rounded-lg items-center">
+                        <div class="flex flex-row space-x-2 items-center">
+                            <input class="cart-good-checkbox w-4 h-4 rounded hover:cursor-pointer"
                                    id="checkbox-{{ cart_good.id }}"
                                    type="checkbox" value="{{ cart_good.id }}"
                                     {% if cart_good.selected %} checked {% endif %} id="flexCheckDefault">
                             <label class="hover:cursor-pointer"
                                    for="checkbox-{{ cart_good.id }}">{{ cart_good.good.name }}</label>
                         </div>
-                        <div class="grid grid-cols-2">
-                            <div class="flex flex-row">
+                        <div class="grid grid-cols-2 col-span-2">
+                            <div class="flex flex-row items-center justify-center">
                                 <i class="bg-blue-500 rounded-full hover:bg-blue-400 px-1.5 py-1 text-white text-sm font-bold hover:cursor-pointer fi fi-rr-plus add-btn"
                                    data-cart_good_id="{{ cart_good.id }}"
                                    data-add="1">
@@ -65,8 +63,8 @@
                     <hr>
                 {% endfor %}
                 {% if cart.promo_code %}
-                    <div class="grid grid-cols-3 p-3 rounded-lg gap-4 justify-center">
-                        <p class="px-9">{{ cart.promo_code }}</p>
+                    <div class="grid grid-cols-3 p-3 rounded-lg items-center">
+                        <p class="px-1">{{ cart.promo_code }}</p>
                         <p class="text-center text-blue-500">{{ cart.promo_code_name }}</p>
                         <span class="text-right" id="promocode-difference">-{{ total_difference }} руб.</span>
                     </div>
