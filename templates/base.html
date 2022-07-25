@@ -7,46 +7,46 @@
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     {% tailwind_css %}
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
     <title>{{ title }}</title>
 </head>
 <body>
 {% csrf_token %}
 <script src='{% static 'js/base.js' %}'></script>
-<header class="flex bg-gradient-to-r from-blue-500 to-cyan-500 space-x-8 text-white p-2">
-    <a href="{% url 'home' %}">PyPoint</a>
+<header class="flex flex-row space-x-8 p-2 shadow-lg">
+    <a class="px-2 font-bold basis-1/2" href="{% url 'home' %}">PyPoint</a>
     {% if user.is_authenticated %}
-        <ul class="navbar-nav px-3"><a class="nav-link">{{ user.fio }}</a></ul>
-        <ul class="navbar-nav px-3">
-            <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
-        </ul>
+        <a class="basis-1/2">{{ user.fio }}</a>
+        <a class="px-2" href="{% url 'logout' %}">Выйти</a>
     {% else %}
-        <ul class="navbar-nav px-3">
-            <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
-        </ul>
-        <ul class="navbar-nav px-3">
-            <a class="nav-link" href="{% url 'login' %}">Войти</a>
-        </ul>
+        <a class="" href="{% url 'register' %}">Регистрация</a>
+        <a class="" href="{% url 'login' %}">Войти</a>
     {% endif %}
 </header>
-<div class="flex flex-row space-x-8 ">
-    <div class="basis-1/6 h-full p-3">
-        <div class="flex flex-col space-y-4">
-            <span class="px-3 font-semibold">{{ user }}</span>
-            {% for element in menu %}
-                <a class="p-3 items-center shadow-lg rounded-lg" href="{% url element.url_name %}">
-                    <i class="{{ element.icon_class }}"></i>&nbsp;
-                    {{ element.title }}
-                </a>
-            {% endfor %}
-            {% if cart_menu_element %}
-                <a class="p-3 items-center shadow-lg rounded-lg" href="{% url cart_menu_element.url_name %}">
-                    <i class="{{ cart_menu_element.icon_class }}"></i>&nbsp;
-                    {{ cart_menu_element.title }}
-                    <span class="" id="cart-quantity">{{ cart_goods_count }}</span>
-                </a>
-            {% endif %}
+<div class="grid grid-cols-7 gap-8">
+    {% if menu %}
+        <div class="p-3">
+            <div class="flex flex-col space-y-1">
+                {% if user.is_authenticated %}
+                    <span class="px-3">{{ user }}</span>
+                {% endif %}
+                {% for element in menu %}
+                    <a class="p-3 items-center" href="{% url element.url_name %}">
+                        <i class="{{ element.icon_class }}"></i>&nbsp;
+                        {{ element.title }}
+                    </a>
+                    <hr>
+                {% endfor %}
+                {% if cart_menu_element %}
+                    <a class="p-3 items-center" href="{% url cart_menu_element.url_name %}">
+                        <i class="{{ cart_menu_element.icon_class }}"></i>&nbsp;
+                        {{ cart_menu_element.title }}
+                        <span class="" id="cart-quantity">{{ cart_goods_count }}</span>
+                    </a>
+                {% endif %}
+            </div>
         </div>
-    </div>
+    {% endif %}
     {% block content %}
     {% endblock %}
 </div>
