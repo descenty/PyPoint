@@ -2,7 +2,8 @@ from django.http import HttpResponseRedirect, HttpRequest
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from main_app.models import CartGood, Good, Cart
+from main_app.forms import OrderCreationForm
+from main_app.models import *
 
 
 def update_cart_promo_code(request: HttpRequest):

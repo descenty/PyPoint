@@ -18,3 +18,10 @@ class OrderCreationForm(ModelForm):
     class Meta:
         model = Order
         fields = ('pick_point', 'delivery_point')
+
+    def clean(self):
+        cleaned_data = super(OrderCreationForm, self).clean()
+        if cleaned_data.get('pick_point') is None and cleaned_data.get('delivery_point') is None:
+            raise forms.ValidationError('Не указан пункт выдачи или адрес доставки')
+        return cleaned_data
+

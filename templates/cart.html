@@ -6,27 +6,35 @@
             <h4 class="text-xl">Оформление заказа</h4>
             <div class="space-y-3">
                 <div class="">
-                    <input id="credit" name="paymentMethod" type="radio" class="" checked=""
-                           required="">
-                    <label class="" for="credit">Пункт выдачи</label>
+                    <input id="pick_point_checkbox" name="order_receiving" type="radio" class=""
+                           onclick="receiving_checkbox_change()" checked>
+                    <label class="" for="pick_point_checkbox">Пункт выдачи</label>
                 </div>
                 <div class="">
-                    <input id="debit" name="paymentMethod" type="radio" class=""
-                           required="">
-                    <label class="" for="debit">Самовывоз</label>
+                    <input id="delivery_checkbox" name="order_receiving" type="radio" class=""
+                           onclick="receiving_checkbox_change()">
+                    <label class="" for="delivery_checkbox">Доставка</label>
                 </div>
             </div>
-            <form class="space-y-3">
-                <div class="grid grid-cols-2 items-center">
-                    <label class="">Пункт выдачи</label>
-                    {{ form.pick_point }}
+            <form class="space-y-3" method="post">
+                {% for error in form.non_field_errors %}
+                    <strong class="text-red-500">{{ error }}</strong>
+                {% endfor %}
+                {% csrf_token %}
+                <div>
+                    <div class="grid grid-cols-2 items-center" id="pick_point_input">
+                        <label class="">Пункт выдачи</label>
+                        {{ form.pick_point }}
+                    </div>
+                    <div class="grid grid-cols-2 items-center" id="delivery_input" style="display: none">
+                        <label class="">Адрес доставки</label>
+                        {{ form.delivery_point }}
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 items-center">
-                    <label class="">Адрес доставки</label>
-                    {{ form.delivery_point }}
-                </div>
+                <button class="rounded-lg text-sm w-40 font-semibold py-1 px-2 bg-slate-900 text-white hover:bg-slate-700"
+                        type="submit">Оформить заказ
+                </button>
             </form>
-            <button class="rounded-lg text-sm w-40 font-semibold py-1 px-2 bg-slate-900 text-white hover:bg-slate-700" type="submit">Оформить заказ</button>
         </div>
         <div class="p-6 col-start-5 col-span-3 text-lg">
             <div class="flex flex-row items-center p-3 space-x-3">
@@ -94,6 +102,15 @@
     {% else %}
         <h4 class="mb-3">Корзина пуста</h4>
     {% endif %}
+    <script>
+        function receiving_checkbox_change() {
+            let pick_point_checked = document.getElementById('pick_point_checkbox').checked
+            document.getElementById('pick_point_input').style.display = pick_point_checked ? 'grid' : 'none'
+            document.getElementById('delivery_input').style.display = pick_point_checked ? 'none' : 'grid'
+            document.getElementById('id_pick_point').value = ''
+            document.getElementById('id_delivery_point').value = ''
+        }
+    </script>
     <script>
 
         let total_label = document.getElementById('total')

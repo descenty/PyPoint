@@ -43,15 +43,39 @@ class CartView(DataMixin, DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         cart: Cart = self.get_object()
-        c_def = self.get_user_context(title='Корзина', total_difference=cart.total - cart.total_with_discount, user_token=Token.objects.get(user_id=self.request.user.id).key)
-        if self.request.method == 'POST':
-            c_def['form'] = OrderCreationForm(self.request.POST)
-        else:
-            c_def['form'] = OrderCreationForm()
+        c_def = self.get_user_context(title='Корзина', total_difference=cart.total - cart.total_with_discount,
+                                      user_token=Token.objects.get(user_id=self.request.user.id).key)
+        c_def['form'] = OrderCreationForm()
         return context | c_def
 
     def get_object(self, **kwargs):
         return self.request.user.cart
+
+    def post(self, request, *args, **kwargs):
+        form = OrderCreationForm(request.POST)
+        if form.is_valid():
+            pick_point_id: int = form.cleaned_data['pick_point']
+            delivery_point: int = form.cleaned_data['delivery_point']
+            customer: Customer = request.user
+            order: Order = Order.objects.create(
+                customer=customer,
+                total=customer.cart.total_with_discount,
+            )
+            if pick_point_id != '':
+                order.pick_point_id = pick_point_id
+            else:
+                order.delivery_point = delivery_point
+            order.save()
+            cart_good: CartGood
+            for cart_good in customer.cart.cart_goods.all():
+                for i in range(cart_good.quantity):
+                    OrderedGood.objects.create(order=order, good=cart_good.good)
+            [cart_good.delete() for cart_good in customer.cart.cart_goods.all()]
+            return HttpResponseRedirect(reverse('orders'))
+        self.object = self.get_object()
+        context = self.get_context_data(**kwargs)
+        context['form'] = form
+        return self.render_to_response(context=context)
 
 
 class RegisterCustomerView(CreateView):
