@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% load static %}
+{% load widget_tweaks %}
 {% block content %}
     {% if cart.cart_goods.all %}
-        <div class="p-9 col-span-2 flex flex-col space-y-4">
+        <div class="pl-9 pt-9 col-span-3 flex flex-col space-y-4">
             <h4 class="text-xl">Оформление заказа</h4>
             <div class="space-y-3">
                 <div class="">
@@ -24,11 +24,11 @@
                 <div>
                     <div class="grid grid-cols-2 items-center" id="pick_point_input">
                         <label class="">Пункт выдачи</label>
-                        {{ form.pick_point }}
+                        {{ form.pick_point |add_class:"bg-gray-50 border border-gray-300 text-gray-900 rounded-lg w-full p-2.5" }}
                     </div>
                     <div class="grid grid-cols-2 items-center" id="delivery_input" style="display: none">
                         <label class="">Адрес доставки</label>
-                        {{ form.delivery_point }}
+                        {{ form.delivery_point |add_class:"bg-gray-50 border border-gray-300 text-gray-900 rounded-lg w-full p-2.5" }}
                     </div>
                 </div>
                 <button class="rounded-lg text-sm w-40 font-semibold py-1 px-2 bg-slate-900 text-white hover:bg-slate-700"
@@ -91,7 +91,7 @@
                 </div>
                 <form class="grid grid-cols-2 gap-12 p-3" action="{% url 'update_cart_promo_code' %}" method="POST">
                     {% csrf_token %}
-                    <input type="text" class="rounded-lg" placeholder="промокод" name="promo_code"/>
+                    <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg w-full p-2.5   " placeholder="промокод" name="promo_code"/>
                     <button type="submit"
                             class="rounded-lg text-sm font-semibold py-3 px-4 bg-slate-900 text-white hover:bg-slate-700">
                         Подтвердить
@@ -100,7 +100,7 @@
             </div>
         </div>
     {% else %}
-        <h4 class="mb-3">Корзина пуста</h4>
+        <h4 class="text-xl p-9">Корзина пуста</h4>
     {% endif %}
     <script>
         function receiving_checkbox_change() {

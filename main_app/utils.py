@@ -12,7 +12,8 @@ menu = [
     MenuElement('Главная', 'home', 'fi fi-rr-home'),
     MenuElement('Мои Заказы', 'orders', 'fi fi-rr-document'),
     MenuElement('Продавцы', 'sellers', 'fi fi-rr-users'),
-    MenuElement('Корзина', 'cart', 'fi fi-rr-shopping-cart')
+    MenuElement('Пункты выдачи', 'pick_point_map', 'fi fi-rr-marker'),
+    MenuElement('Корзина', 'cart', 'fi fi-rr-shopping-cart'),
 ]
 
 

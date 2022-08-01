@@ -35,6 +35,20 @@ class SellersView(DataMixin, ListView):
         return context | c_def
 
 
+class OrdersView(DataMixin, ListView):
+    model = Order
+    template_name = 'orders.html'
+    context_object_name = 'orders'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Заказы')
+        return context | c_def
+
+    def get_queryset(self):
+        return self.request.user.orders
+
+
 class CartView(DataMixin, DetailView):
     model = Cart
     template_name = 'cart.html'

@@ -19,6 +19,8 @@ class OrderCreationForm(ModelForm):
         model = Order
         fields = ('pick_point', 'delivery_point')
 
+    delivery_point = forms.TextInput(attrs={'class': 'text-red-500'})
+
     def clean(self):
         cleaned_data = super(OrderCreationForm, self).clean()
         if cleaned_data.get('pick_point') is None and cleaned_data.get('delivery_point') is None:

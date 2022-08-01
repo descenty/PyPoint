@@ -67,6 +67,8 @@ class PickPoint(models.Model):
     rating = models.FloatField(default=4.95)
     owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
     cells_count = models.PositiveSmallIntegerField(default=0)
+    latitude = models.FloatField(default=0)
+    longitude = models.FloatField(default=0)
 
     class Meta:
         verbose_name = 'Пункт выдачи'
@@ -139,12 +141,19 @@ class CartGood(models.Model):
 
 
 class Order(models.Model):
+    class OrderStatusType(models.TextChoices):
+        CREATED = 'Создан'
+        IN_WORK = 'В работе'
+        COMPLETED = 'Завершен'
+
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders', verbose_name='Клиент')
     total = models.DecimalField(default=0.00, blank=True, max_digits=10, decimal_places=2, verbose_name='Сумма')
     pick_point = models.ForeignKey(PickPoint, null=True, blank=True, on_delete=models.CASCADE,
                                    verbose_name='Пункт выдачи')
     pick_point_cell = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Ячейка')
     delivery_point = models.CharField(max_length=150, null=True, blank=True, verbose_name='Адрес доставки')
+    status_type = models.CharField('Статус', choices=OrderStatusType.choices, max_length=30, default=OrderStatusType.CREATED)
+    created_at = models.DateTimeField('Создан', auto_now_add=True)
 
     class Meta:
         verbose_name = 'Заказ'
