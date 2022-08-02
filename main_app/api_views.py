@@ -85,7 +85,6 @@ class CartGoodViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_cart(request):
-    print(request.user)
     return Response(CartSerializer(Cart.objects.get(customer=request.user)).data)
 
 
@@ -100,7 +99,6 @@ def post_vehicle_coords(request: Request):
         latitude=data['latitude'],
         longitude=data['longitude']
     )
-    print(vehicle_coords)
     return HttpResponse(status=200)
 
 
@@ -108,7 +106,6 @@ class AddToCart(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
-        print(request.user)
         good_id = request.data['good_id']
         good = get_object_or_404(Good, id=good_id)
         cart: Cart = request.user.cart

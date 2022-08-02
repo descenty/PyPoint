@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'theme',
     'django_browser_reload',
     'widget_tweaks',
+    'django_celery_results',
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -155,3 +156,19 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     ]
 }
+
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_HOST_USER = 'd3verty@yandex.ru'
+EMAIL_HOST_PASSWORD = 'xsqsdfpllquufmow'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+SERVER_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

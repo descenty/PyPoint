@@ -4,13 +4,15 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import ListView, CreateView, DetailView, TemplateView
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.authtoken.models import Token
 
 from main_app.forms import CustomerCreationForm, OrderCreationForm
 from main_app.models import *
 from main_app.utils import DataMixin
+
+from main_app.tasks import send_new_order_info
 
 
 class HomeView(DataMixin, ListView):
@@ -70,6 +72,7 @@ class CartView(DataMixin, DetailView):
         if form.is_valid():
             pick_point_id: int = form.cleaned_data['pick_point']
             delivery_point: int = form.cleaned_data['delivery_point']
+
             customer: Customer = request.user
             order: Order = Order.objects.create(
                 customer=customer,
@@ -80,11 +83,15 @@ class CartView(DataMixin, DetailView):
             else:
                 order.delivery_point = delivery_point
             order.save()
+
             cart_good: CartGood
             for cart_good in customer.cart.cart_goods.all():
                 for i in range(cart_good.quantity):
                     OrderedGood.objects.create(order=order, good=cart_good.good)
             [cart_good.delete() for cart_good in customer.cart.cart_goods.all()]
+
+            send_new_order_info.delay(order.id)
+
             return HttpResponseRedirect(reverse('orders'))
         self.object = self.get_object()
         context = self.get_context_data(**kwargs)
@@ -100,3 +107,9 @@ class RegisterCustomerView(CreateView):
         customer = form.save()
         login(self.request, customer)
         return redirect('home')
+
+
+class NewOrderEmailView(TemplateView):
+    template_name = 'email/new_order_email.html'
+    order: Order = Order.objects.all()[0]
+    extra_context = {'order': order, 'customer_name': order.customer.fio.split()[1]}
