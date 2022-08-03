@@ -275,3 +275,12 @@ class GoodCategory(models.Model):
     class Meta:
         verbose_name = 'Категория товара'
         verbose_name_plural = 'Категории товаров'
+
+
+class Region(models.Model):
+    name = models.CharField(max_length=75)
+
+
+class City(models.Model):
+    name = models.CharField(max_length=75)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE)
