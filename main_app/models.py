@@ -262,3 +262,16 @@ class OrderedGoodStatus(models.Model):
     class Meta:
         verbose_name = 'Статус товара'
         verbose_name_plural = 'Статусы товара'
+
+
+class GoodCategory(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=150)
+    url = models.CharField(max_length=200)
+    shard = models.CharField(max_length=200)
+    query = models.CharField(max_length=2000)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        verbose_name = 'Категория товара'
+        verbose_name_plural = 'Категории товаров'

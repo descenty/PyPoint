@@ -113,3 +113,12 @@ class NewOrderEmailView(TemplateView):
     template_name = 'email/new_order_email.html'
     order: Order = Order.objects.all()[0]
     extra_context = {'order': order, 'customer_name': order.customer.fio.split()[1]}
+
+
+class AdminUtilsView(DataMixin, TemplateView):
+    template_name = 'admin_utils.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Утилиты', categories=GoodCategory.objects.all()[:50])
+        return context | c_def
