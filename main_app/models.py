@@ -62,11 +62,32 @@ class Customer(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Клиенты'
 
 
+class Region(models.Model):
+    name = models.CharField(max_length=75)
+
+    class Meta:
+        verbose_name = 'Регион'
+        verbose_name_plural = 'Регионы'
+
+
+class City(models.Model):
+    name = models.CharField(max_length=75)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Город'
+        verbose_name_plural = 'Города'
+
+    def __str__(self):
+        return self.name
+
+
 class PickPoint(models.Model):
-    address = models.CharField(max_length=50)
-    rating = models.FloatField(default=4.95)
-    owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    cells_count = models.PositiveSmallIntegerField(default=0)
+    city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='pick_points', verbose_name='Город')
+    address = models.CharField('Адрес', max_length=100)
+    rating = models.FloatField('Рейтинг', default=4.95)
+    owner = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, related_name='pick_points', verbose_name='Владелец')
+    cells_count = models.PositiveSmallIntegerField('Количество ячеек', default=0)
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
 
@@ -276,11 +297,3 @@ class GoodCategory(models.Model):
         verbose_name = 'Категория товара'
         verbose_name_plural = 'Категории товаров'
 
-
-class Region(models.Model):
-    name = models.CharField(max_length=75)
-
-
-class City(models.Model):
-    name = models.CharField(max_length=75)
-    region = models.ForeignKey(Region, on_delete=models.CASCADE)

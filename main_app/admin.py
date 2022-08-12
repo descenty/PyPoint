@@ -42,7 +42,7 @@ class CustomerAdmin(NestedModelAdmin):
 
 @admin.register(models.PickPoint)
 class PickPointAdmin(admin.ModelAdmin):
-    list_display = ('address', 'rating', 'cells_count')
+    list_display = ('city', 'address', 'rating', 'cells_count')
     readonly_fields = ('rating', )
 
 

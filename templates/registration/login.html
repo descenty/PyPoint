@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="flex flex-col p-3 items-center justify-center h-screen basis-1">
-        <h1 class="font-bold">Вход</h1>
+    <div class="col-span-7 flex flex-col p-3 items-center justify-center h-screen">
+        <h1 class="text-xl">Вход</h1>
         {% if forms.errors %}
             <p>{{ forms.errors.error }}</p>
         {% endif %}
-        <form action="{% url 'login' %}" method="post" class="flex flex-col p-3">
+        <form action="{% url 'login' %}" method="post" class="flex flex-col p-3 gap-4">
             {{ form }}
             {% csrf_token %}
-            <button type="submit" class="btn btn-success">Войти</button>
+            <div class="flex justify-center">
+                <button type="submit"
+                        class="rounded-lg text-sm w-40 font-semibold py-1 px-2 bg-slate-900 text-white hover:bg-slate-700">
+                    Войти
+                </button>
+            </div>
         </form>
     </div>
 {% endblock %}

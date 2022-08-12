@@ -30,10 +30,12 @@
                     <span class="px-3">{{ user }}</span>
                 {% endif %}
                 {% for element in menu %}
-                    <a class="p-3 items-center" href="{% url element.url_name %}">
-                        <i class="{{ element.icon_class }}"></i>&nbsp;
-                        {{ element.title }}
-                    </a>
+                    {% if not element.needs_auth or user.is_authenticated %}
+                        <a class="p-3 items-center" href="{% url element.url_name %}">
+                            <i class="{{ element.icon_class }}"></i>&nbsp;
+                            {{ element.title }}
+                        </a>
+                    {% endif %}
                     <hr>
                 {% endfor %}
                 {% if cart_menu_element %}
@@ -49,5 +51,57 @@
     {% block content %}
     {% endblock %}
 </div>
+<button class="fixed bottom-3 right-3 text-xl hover:bg-gray-100 px-2 rounded-lg" id="show_help_button">Помощь</button>
+<div class="fixed bottom-3 w-1/4 h-2/3 right-3 bg-gray-400 rounded-lg shadow-lg p-4 space-y-4" id="help_panel" hidden>
+    <div class="text-xl flex flex-row items-center text-white justify-between p-1">
+        <div>Чат с поддержкой</div>
+        <i class="fi fi-rr-cross-small bg-red-500 rounded-full hover:bg-red-400 px-1.5 py-1 text-white text-sm font-bold hover:cursor-pointer" id="hide_help_button"></i>
+    </div>
+    <div class="space-y-3 overflow-y-auto flex flex-col h-80">
+        <div class="shadow-lg rounded-lg p-3 space-y-0.5 bg-white">
+            <span class="text-lg italic">Александр</span>
+            <hr>
+            <p class="">Здравствуйте, хотелось бы уточнить по срокам доставки. Товар был заказан 28 июля, при оформлении
+                заказа было написано, что привезут 1 августа, но уже прошло две недели</p>
+        </div>
+        <div class="shadow-lg rounded-lg p-3 space-y-0.5 bg-white">
+            <span class="text-lg italic">Александр</span>
+            <hr>
+            <p class="">Здравствуйте, хотелось бы уточнить по срокам доставки. Товар был заказан 28 июля, при оформлении
+                заказа было написано, что привезут 1 августа, но уже прошло две недели</p>
+        </div>
+        <div class="shadow-lg rounded-lg p-3 space-y-0.5 bg-white">
+            <span class="text-lg italic">Александр</span>
+            <hr>
+            <p class="">Здравствуйте, хотелось бы уточнить по срокам доставки. Товар был заказан 28 июля, при оформлении
+                заказа было написано, что привезут 1 августа, но уже прошло две недели</p>
+        </div>
+    </div>
+    <div>
+        <textarea class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg w-full" rows=4 name="message"
+                  placeholder="введите сообщение"></textarea>
+        <div class="flex justify-center">
+            <button type="submit"
+                    class="rounded-lg text-sm font-semibold w-40 py-2 px-4 bg-slate-900 text-white hover:bg-slate-700">
+                Отправить
+            </button>
+        </div>
+    </div>
+</div>
 </body>
+<script>
+    let show_help_button = document.getElementById('show_help_button')
+    let help_panel = document.getElementById('help_panel')
+    let hide_help_button = document.getElementById('hide_help_button')
+    let i = 0
+
+    function show_hide_panel () {
+        show_help_button.hidden = i % 2 === 0
+        help_panel.hidden = !(i % 2 === 0)
+        i++
+    }
+
+    show_help_button.onclick = show_hide_panel
+    hide_help_button.onclick = show_hide_panel
+</script>
 </html>
