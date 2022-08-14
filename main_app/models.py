@@ -297,3 +297,15 @@ class GoodCategory(models.Model):
         verbose_name = 'Категория товара'
         verbose_name_plural = 'Категории товаров'
 
+
+class MessageRoom(models.Model):
+    owner = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='own_message_rooms')
+    created_at = models.DateTimeField(auto_now_add=True)
+    members = models.ManyToManyField(Customer, related_name='message_rooms')
+
+
+class Message(models.Model):
+    room = models.ForeignKey(MessageRoom, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='messages')
+    text = models.CharField(max_length=400)
+    created_at = models.DateTimeField(auto_now_add=True)

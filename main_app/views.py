@@ -111,9 +111,13 @@ class RegisterCustomerView(CreateView):
 
 class NewOrderEmailView(TemplateView):
     template_name = 'email/new_order_email.html'
-    if Order.objects.all().exists():
-        order: Order = Order.objects.all()[0]
-        extra_context = {'order': order, 'customer_name': order.customer.fio.split()[1]}
+
+    def get_context_data(self, **kwargs):
+        context = super(NewOrderEmailView, self).get_context_data(**kwargs)
+        if Order.objects.all().exists():
+            order: Order = Order.objects.all()[0]
+            context['order'] = order
+            context['customer_name'] = order.customer.fio.split()[1]
 
 
 class AdminUtilsView(DataMixin, TemplateView):

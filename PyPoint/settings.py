@@ -24,8 +24,10 @@ SECRET_KEY = 'django-insecure-_e5lwtj4*5su8ag@6%8)qp^tu5$3a24%yz5&ghc1^0p_^39zrv
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.136']
-INTERNAL_IPS = ['127.0.0.1', '192.168.1.136']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.136']
+INTERNAL_IPS = ['localhost', '127.0.0.1', '192.168.1.136']
+
+CORS_ORIGIN_ALLOW_ALL = DEBUG
 
 NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
 
@@ -51,6 +53,7 @@ INSTALLED_APPS = [
     'django_browser_reload',
     'widget_tweaks',
     'django_celery_results',
+  #  'channels'
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -64,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_browser_reload.middleware.BrowserReloadMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'PyPoint.urls'
@@ -86,6 +91,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'PyPoint.wsgi.application'
+#ASGI_APPLICATION = 'PyPoint.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)]
+        }
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

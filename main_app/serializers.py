@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Customer, PickPoint, Good, Seller, CartGood, Cart
+from .models import Customer, PickPoint, Good, Seller, CartGood, Cart, MessageRoom
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -67,3 +67,10 @@ class VehicleCoordSerializer(serializers.Serializer):
     vehicle_id = serializers.IntegerField()
     latitude = serializers.DecimalField(max_digits=10, decimal_places=7)
     longitude = serializers.DecimalField(max_digits=10, decimal_places=7)
+
+
+class MessageRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MessageRoom
+        fields = '__all__'
+        depth = 1

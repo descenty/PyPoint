@@ -1,5 +1,5 @@
 from django.urls import path, include, re_path
-from main_app.api_views import PickPointViewSet, CreateCustomerView, CartGoodViewSet, post_vehicle_coords, AddToCart, \
+from main_app.api_views import GoodViewSet, PickPointViewSet, CreateCustomerView, CartGoodViewSet, post_vehicle_coords, AddToCart, \
     get_cart
 from rest_framework import permissions, routers
 from rest_framework.authtoken import views
@@ -22,6 +22,7 @@ schema_view = get_schema_view(
 router = routers.SimpleRouter()
 router.register(r'pick-points', PickPointViewSet, basename='pick-points')
 router.register(r'cart-goods', CartGoodViewSet, basename='cart-goods')
+router.register(r'goods', GoodViewSet, basename='goods')
 
 urlpatterns = [
     path('accounts/register/', CreateCustomerView.as_view()),
